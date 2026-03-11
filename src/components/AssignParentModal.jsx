@@ -35,37 +35,38 @@ export default function AssignParentModal({ selectedIssues, onClose, onAssign })
 
   if (showWarning) {
     return (
-      <div className="fixed inset-0 z-[1001] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300">
-        <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-300 p-10 flex flex-col items-center text-center">
-          <div className="w-20 h-20 rounded-full bg-amber-50 border-4 border-amber-100 flex items-center justify-center text-3xl mb-6 animate-bounce">⚠️</div>
-          <h3 className="text-xl font-black text-slate-900 mb-2">Confirm Parent Re-assignment</h3>
-          <p className="text-sm text-slate-500 font-medium mb-8 leading-relaxed">
-            {isMixed 
-              ? `You've selected ${selectedCount} issues, but ${hasParentCount} already have parents assigned.`
-              : `All ${selectedCount} selected issues already have parents assigned.`}
-            <br/><span className="text-indigo-600 font-bold">Assigning to {selected?.key} will change the current mapping.</span>
+      <div className="fixed inset-0 z-[1001] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xl animate-in fade-in duration-300">
+        <div className="bg-white w-full max-w-[440px] rounded-[2.5rem] shadow-[0_32px_80px_rgba(0,0,0,0.15)] border border-slate-200/60 overflow-hidden animate-in zoom-in-95 duration-300 p-12 flex flex-col items-center text-center">
+          <div className="w-20 h-20 rounded-[2rem] bg-amber-50 flex items-center justify-center text-4xl mb-8 shadow-inner shadow-amber-200/50">
+             <svg className="w-10 h-10 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          
+          <h3 className="text-[22px] font-black text-slate-900 mb-3 tracking-tight">Overwrite Existing Parents?</h3>
+          <p className="text-[14px] text-slate-500 font-medium mb-10 leading-relaxed px-2">
+            {hasParentCount} of the selected issues already have a parent assigned. 
+            <span className="block mt-1">Do you want to overwrite them with this new parent <span className="text-indigo-600 font-black">{selected?.key}</span>?</span>
           </p>
 
-          <div className="flex flex-col w-full gap-3">
+          <div className="flex flex-col w-full gap-3.5">
             <button 
               onClick={() => onAssign(selected, 'overwrite')}
-              className="w-full py-4 bg-indigo-600 text-white rounded-2xl text-[13px] font-black uppercase tracking-wider shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all"
+              className="w-full h-14 bg-indigo-600 text-white rounded-2xl text-[13px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 hover:bg-indigo-700 hover:scale-[1.02] active:scale-95 transition-all"
             >
               Overwrite All
             </button>
             {isMixed && (
               <button 
                 onClick={() => onAssign(selected, 'skip')}
-                className="w-full py-4 bg-white border-2 border-slate-100 text-slate-700 rounded-2xl text-[13px] font-black uppercase tracking-wider hover:bg-slate-50 active:scale-95 transition-all"
+                className="w-full h-14 bg-white border-2 border-slate-100 text-slate-800 rounded-2xl text-[13px] font-black uppercase tracking-widest hover:border-indigo-100 hover:bg-indigo-50/30 active:scale-95 transition-all shadow-sm"
               >
-                Skip issues with parents
+                Skip Existing
               </button>
             )}
             <button 
               onClick={() => setShowWarning(false)}
-              className="w-full py-3 text-slate-400 text-xs font-bold uppercase tracking-widest hover:text-slate-600 mt-2"
+              className="w-full h-12 text-slate-400 text-[11px] font-black uppercase tracking-[0.2em] hover:text-slate-900 transition-colors mt-2"
             >
-              Back to selection
+              Cancel
             </button>
           </div>
         </div>
