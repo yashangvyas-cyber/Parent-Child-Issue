@@ -37,56 +37,7 @@ export default function IssueListView({ project, activeTab, onTabChange, onIssue
   const toggleOne = (id) => setChecked(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
 
   return (
-    <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-3 duration-700">
-      {/* Page Header Area */}
-      <div className="flex flex-col gap-6 mb-8">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest">
-              <span>Projects</span>
-              <span className="text-slate-300">/</span>
-              <span className="text-indigo-500">{project?.name || 'CollabCRM Platform'}</span>
-            </div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Issue Navigator</h2>
-          </div>
-          <button className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-black text-xs shadow-lg shadow-indigo-100 hover:bg-indigo-700 hover:shadow-indigo-200 transition-all active:scale-95 flex items-center gap-2">
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Create Issue
-          </button>
-        </div>
-
-        {/* View Switcher & Filters */}
-        <div className="flex flex-wrap items-center justify-between gap-4 p-2 bg-slate-100/50 rounded-2xl border border-slate-200/50">
-          <div className="flex items-center bg-white p-1 rounded-xl shadow-sm border border-slate-200/60">
-            {['board', 'issue-list'].map(tab => (
-              <button
-                key={tab}
-                className={`px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all ${activeTab === tab ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' : 'text-slate-500 hover:text-slate-800'}`}
-                onClick={() => onTabChange(tab)}
-              >
-                {tab === 'board' ? 'Card Board' : 'Table List'}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-3">
-             <div className="flex -space-x-2 group cursor-pointer">
-              {[{ i: 'YV', c: '#667eea' }, { i: 'SR', c: '#10b981' }, { i: 'AM', c: '#f59e0b' }].map((a, idx) => (
-                <div key={idx} className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-black text-white shadow-sm ring-1 ring-slate-100 group-hover:scale-110 transition-transform" style={{ background: a.c }}>{a.i}</div>
-              ))}
-              <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] font-black text-slate-500 shadow-sm ring-1 ring-slate-100">+2</div>
-            </div>
-            <div className="h-6 w-[1px] bg-slate-200 mx-1" />
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-100/50 shadow-sm">
-              <span className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter">Active Sprint 12</span>
-              <span className="w-1 h-1 bg-emerald-300 rounded-full" />
-              <span className="text-[10px] font-bold text-emerald-500">Ends in 2d</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-500">
 
       {/* Table Container */}
       <div className="bg-white border border-slate-200/60 rounded-3xl shadow-xl shadow-slate-200/40 overflow-hidden relative group/list">

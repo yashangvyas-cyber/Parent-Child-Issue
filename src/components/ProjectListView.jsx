@@ -1,135 +1,104 @@
 import { useState } from 'react'
 
-const PROJECTS = [
-  { id: 1, key: 'COLLAB', name: 'CollabCRM Platform', lead: 'YV', leadColor: '#667eea', issues: 142, open: 28, sprint: 'Sprint 12', type: 'Software', updated: '2h ago' },
-  { id: 2, key: 'MKTG', name: 'Marketing Automation', lead: 'SR', leadColor: '#10b981', issues: 67, open: 12, sprint: 'Sprint 4', type: 'Business', updated: '1d ago' },
-  { id: 3, key: 'OPS', name: 'Operations Dashboard', lead: 'AM', leadColor: '#f59e0b', issues: 89, open: 19, sprint: 'Sprint 7', type: 'Software', updated: '3h ago' },
-  { id: 4, key: 'HRMS', name: 'HR Management System', lead: 'RK', leadColor: '#8b5cf6', issues: 53, open: 8, sprint: 'Sprint 2', type: 'Business', updated: '2d ago' },
-  { id: 5, key: 'INTG', name: 'Integration Services', lead: 'PL', leadColor: '#06b6d4', issues: 34, open: 15, sprint: 'Sprint 9', type: 'Software', updated: '5h ago' },
-]
-
-export default function ProjectListView({ onProjectClick }) {
-  const [search, setSearch] = useState('')
-
-  const filtered = PROJECTS.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.key.toLowerCase().includes(search.toLowerCase())
-  )
-
+export default function ProjectListView({ projects, onSelect }) {
   return (
-    <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-3 duration-700">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-1.5">
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            Projects
-            <span className="text-xs font-black bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg shadow-sm border border-indigo-100/50">
-              {PROJECTS.length} Total
-            </span>
-          </h1>
-          <p className="text-sm font-semibold text-slate-500 max-w-md leading-relaxed">
-            Manage your organization's workspaces and track performance across all active cycles.
-          </p>
-        </div>
+    <div className="flex flex-col h-full bg-white p-6 animate-in fade-in duration-500">
+      {/* Page Title Area */}
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="relative group">
-            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors pointer-events-none">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-            </div>
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Filter by name or key..."
-              className="bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs font-bold text-slate-700 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all placeholder:text-slate-400 w-64 shadow-sm"
-            />
+          <h1 className="text-xl font-black text-slate-800 tracking-tight">Task Management</h1>
+          <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded text-[10px] font-black text-slate-500">1 - 10 of 120 Projects</span>
+          <label className="flex items-center gap-2 ml-4 cursor-pointer">
+            <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" defaultChecked />
+            <span className="text-[11px] font-bold text-slate-600">Show my projects only</span>
+          </label>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+            <button className="px-4 py-1.5 bg-indigo-600 text-white text-[11px] font-black rounded-md shadow-sm">All</button>
+            <button className="px-4 py-1.5 text-slate-600 text-[11px] font-black">Favorite</button>
           </div>
-          <button className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-black text-xs shadow-lg shadow-indigo-100 hover:bg-indigo-700 hover:shadow-indigo-200 transition-all active:scale-95 flex items-center gap-2">
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Create Project
-          </button>
+          <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600"><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>
+          <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600"><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
         </div>
       </div>
 
-      {/* Projects Table / Modern List */}
-      <div className="bg-white border border-slate-200/60 rounded-3xl shadow-xl shadow-slate-200/40 overflow-hidden group/list">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">#</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Workspace</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 text-center">Issues</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Current Phase</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Progress</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Last Active</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filtered.map((p, i) => (
-                <tr 
-                  key={p.id} 
-                  className="group hover:bg-slate-50 transition-colors cursor-pointer"
-                  onClick={() => onProjectClick(p)}
-                >
-                  <td className="px-6 py-5 text-xs font-black text-slate-300 group-hover:text-slate-500 transition-colors">{i + 1}</td>
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-sm shadow-xl shadow-slate-200/50 group-hover:scale-105 transition-transform" style={{ background: p.leadColor }}>
-                        {p.key.slice(0, 2)}
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[14px] font-black text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">{p.name}</span>
-                        <div className="flex items-center gap-2 mt-1">
-                          <code className="text-[10px] font-black text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded uppercase tracking-wider">{p.key}</code>
-                          <span className="w-1 h-1 bg-slate-200 rounded-full" />
-                          <span className={`text-[10px] font-black uppercase tracking-wider ${p.type === 'Software' ? 'text-indigo-500' : 'text-emerald-500'}`}>{p.type}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="flex flex-col items-center gap-1.5">
-                      <span className="text-sm font-black text-slate-700">{p.issues}</span>
-                      <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-50 border border-rose-100 shadow-sm shadow-rose-100/30">
-                        <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
-                        <span className="text-[10px] font-black text-rose-600 uppercase tracking-tighter">{p.open} Open</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="flex flex-col gap-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-wider border border-emerald-100 shadow-sm">Active</span>
-                        <span className="text-[13px] font-bold text-slate-500">{p.sprint}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-5 h-5 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] font-black text-slate-500 shadow-sm" style={{ background: p.leadColor, color: '#fff' }}>{p.lead}</div>
-                        <span className="text-[11px] font-bold text-slate-400">Lead by {p.lead}</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="w-32 space-y-2">
-                       <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{Math.round((1 - p.open/p.issues) * 100)}% Done</span>
-                       </div>
-                       <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner-soft">
-                          <div className="h-full bg-indigo-500 rounded-full shadow-lg shadow-indigo-100/50" style={{ width: `${(1 - p.open/p.issues) * 100}%` }} />
-                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <span className="text-xs font-black text-slate-400 uppercase tracking-tighter">{p.updated}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Filter Row */}
+      <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-2.5 mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <button className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-[11px] font-black text-slate-700 flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-lg shadow-sm">
+            <span className="text-[10px] font-bold text-slate-400 uppercase">Status</span>
+            <span className="text-[10px] font-black text-slate-800 uppercase">Is not</span>
+            <span className="text-[10px] font-black text-indigo-600 uppercase bg-indigo-50 px-1.5 py-0.5 rounded">Signed Off</span>
+            <button className="text-slate-300 hover:text-rose-500">×</button>
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-white border border-slate-200 rounded-lg shadow-sm">
+            <svg className="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <span className="text-[10px] font-bold text-slate-400 uppercase">Archived</span>
+            <span className="text-[10px] font-black text-slate-800 uppercase">Is</span>
+            <span className="text-[10px] font-black text-indigo-600 uppercase bg-indigo-50 px-1.5 py-0.5 rounded">False</span>
+            <button className="text-slate-300 hover:text-rose-500">×</button>
+          </div>
+          <button className="w-6 h-6 rounded-full border border-dashed border-slate-300 flex items-center justify-center text-slate-400">+</button>
         </div>
+        <button className="px-4 py-1.5 bg-indigo-50 text-indigo-600 text-[11px] font-black rounded-lg hover:bg-indigo-100 transition-all">Filter</button>
+      </div>
+
+      {/* Projects Table */}
+      <div className="flex-1 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-slate-50/80 border-b border-slate-100">
+              <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase">No.</th>
+              <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase">Project Name</th>
+              <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase">Type</th>
+              <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase">Role</th>
+              <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase">Status</th>
+              <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase">Created By</th>
+              <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-50">
+            {projects.map((p, idx) => (
+              <tr 
+                key={p.id} 
+                className="hover:bg-slate-50/50 transition-colors cursor-pointer group"
+                onClick={() => onSelect(p)}
+              >
+                <td className="px-4 py-4 text-[11px] font-bold text-slate-400">{idx + 1}</td>
+                <td className="px-4 py-4">
+                  <div className="flex items-center gap-3">
+                    <svg className="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <div>
+                      <div className="text-[13px] font-black text-slate-800 group-hover:text-indigo-600">{p.name}</div>
+                      <div className="text-[10px] font-bold text-slate-400">#PROJECT_CODE_{p.id}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-4 py-4"><span className="px-3 py-1 bg-slate-100 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-600">{p.type}</span></td>
+                <td className="px-4 py-4 text-[11px] font-medium text-slate-500">{p.role}</td>
+                <td className="px-4 py-4">
+                  <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider ${p.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-indigo-50 text-indigo-600'}`}>
+                    {p.status}
+                  </span>
+                </td>
+                <td className="px-4 py-4">
+                  <div>
+                    <div className="text-[11px] font-black text-slate-700">Super User</div>
+                    <div className="text-[9px] font-bold text-slate-400">03/Mar/2026, 03:47 PM</div>
+                  </div>
+                </td>
+                <td className="px-4 py-4">
+                  <button className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-indigo-600"><svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   )

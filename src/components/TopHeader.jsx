@@ -1,51 +1,87 @@
-export default function TopHeader() {
+export default function TopHeader({ project, activeTab, onTabChange }) {
+  const tabs = [
+    { id: 'board', label: 'Board' },
+    { id: 'issue-list', label: 'Issue List' },
+    { id: 'backlog', label: 'Backlog' },
+    { id: 'completed-sprints', label: 'Completed Sprints' },
+    { id: 'notification-settings', label: 'Notification Settings' },
+  ]
+
   return (
-    <header className="h-14 flex items-center px-6 bg-white/70 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-[100] gap-8 shadow-sm shadow-slate-100/50">
-      {/* Brand/Breadcrumb */}
-      <div className="flex items-center gap-3 cursor-pointer group">
-        <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100 group-hover:bg-indigo-700 transition-all active:scale-95">
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
-            <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
-          </svg>
+    <header className="bg-white border-b border-slate-200/70 sticky top-0 z-[100] shadow-sm shadow-slate-100/50 flex-shrink-0">
+      {/* Top row */}
+      <div className="h-12 flex items-center px-6 gap-6 border-b border-slate-100">
+        {/* Breadcrumb area */}
+        <div className="flex items-center gap-2 text-sm flex-1">
+          <span className="text-slate-500 font-medium">Tasks</span>
+          {project && (
+            <>
+              <span className="text-slate-300">/</span>
+              <span className="text-slate-800 font-semibold">{project.name}</span>
+            </>
+          )}
         </div>
-        <span className="text-[14px] font-black text-slate-800 tracking-tight select-none">Management System</span>
+
+        {/* STAGING Badge */}
+        <button className="px-4 py-1.5 rounded-lg bg-red-500 text-white text-[11px] font-black tracking-widest uppercase shadow-sm hover:bg-red-600 transition-all">
+          STAGING
+        </button>
+
+        {/* Right icons */}
+        <div className="flex items-center gap-2">
+          {/* Search */}
+          <div className="hidden md:flex items-center bg-slate-100/70 border border-slate-200/80 rounded-xl px-3 py-2 gap-2 w-60">
+            <svg className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <span className="text-[11px] text-slate-400 font-medium">Search people by name, email, code...</span>
+          </div>
+
+          {/* Now button */}
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-[11px] font-black text-slate-700 shadow-sm hover:bg-slate-50 transition-all">
+            Now
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+
+          {/* Chat icon */}
+          <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 transition-all relative">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </button>
+
+          {/* Bell */}
+          <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 transition-all relative">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-rose-500 border border-white rounded-full" />
+          </button>
+
+          {/* Avatar */}
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center font-black text-white text-[10px] shadow-sm cursor-pointer">
+            YV
+          </div>
+        </div>
       </div>
 
-      {/* Global Search */}
-      <div className="hidden md:flex flex-1 max-w-xl group relative">
-        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors pointer-events-none">
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
+      {/* Tabs row — only show if a project is selected */}
+      {project && (
+        <div className="flex items-center gap-0 px-6 h-10">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange && onTabChange(tab.id)}
+              className={`px-4 h-full text-[12px] font-semibold border-b-2 transition-all whitespace-nowrap
+                ${activeTab === tab.id
+                  ? 'border-indigo-600 text-indigo-600'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
-        <input 
-          placeholder="Search items, people, commands..." 
-          className="w-full bg-slate-100/50 border border-slate-100 rounded-xl pl-10 pr-4 py-2.5 text-xs font-semibold text-slate-700 outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 transition-all placeholder:text-slate-400 shadow-inner-soft"
-        />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden group-focus-within:flex items-center gap-1.5 pointer-events-none">
-          <kbd className="px-1.5 py-0.5 bg-slate-50 border border-slate-200 rounded text-[10px] font-black text-slate-400">⌘</kbd>
-          <kbd className="px-1.5 py-0.5 bg-slate-50 border border-slate-200 rounded text-[10px] font-black text-slate-400">K</kbd>
-        </div>
-      </div>
-
-      {/* Header Actions */}
-      <div className="flex items-center gap-3 ml-auto">
-        <button className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-50 text-slate-500 transition-all relative group shadow-sm active:scale-95">
-          <svg className="w-5 h-5 group-hover:text-amber-500 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-          </svg>
-          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 border-2 border-white rounded-full shadow-sm" />
-        </button>
-        <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 text-white shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all active:scale-90 group">
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-        </button>
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 flex items-center justify-center font-black text-amber-700 text-[11px] shadow-sm cursor-pointer hover:shadow-md hover:border-amber-300 transition-all active:scale-95">
-          YV
-        </div>
-      </div>
+      )}
     </header>
   )
 }
