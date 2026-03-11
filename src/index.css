@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --shadow-premium: 0 25px 60px -15px rgba(0, 0, 0, 0.2);
+  --shadow-inner-soft: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+@layer base {
+  body {
+    @apply bg-white text-slate-900 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  .btn-premium {
+    @apply px-5 py-2.5 rounded-xl font-bold transition-all active:scale-95 shadow-sm hover:shadow-lg;
+  }
+  
+  .glass-header {
+    @apply bg-white/70 backdrop-blur-xl border-b border-slate-200/50;
+  }
+}
