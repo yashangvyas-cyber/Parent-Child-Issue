@@ -73,7 +73,7 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-white font-['Outfit'] select-none overflow-hidden">
+    <div className="flex flex-col h-screen bg-white select-none overflow-hidden">
       <GlobalHeader />
 
       <div className="flex flex-1 overflow-hidden">

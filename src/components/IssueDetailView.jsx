@@ -109,7 +109,7 @@ export default function IssueDetailView({ issue, onBack, project }) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white font-['Outfit'] select-none">
+    <div className="flex flex-col h-full bg-white select-none">
       
       {/* ─── INTERNAL SUB-HEADER (Breadcrumbs & Actions) ─── */}
       <div className="flex items-center justify-between px-6 py-3 border-b border-slate-100">
