@@ -181,10 +181,14 @@ export default function IssueListView({ project, activeTab, onTabChange, onIssue
       {/* Assign Parent Modal */}
       {showAssignModal && (
         <AssignParentModal
-          selectedCount={checked.length}
+          selectedIssues={ISSUES.filter(i => checked.includes(i.id))}
           onClose={() => setShowAssignModal(false)}
-          onAssign={(parent) => {
-            alert(`Assigned ${checked.length} issue(s) to parent: ${parent.key}`)
+          onAssign={(parent, strategy) => {
+            const count = strategy === 'skip' 
+              ? ISSUES.filter(i => checked.includes(i.id) && !i.parent).length
+              : checked.length;
+            
+            alert(`Parent ${parent.key} assigned to ${count} issue(s) using strategy: ${strategy}`)
             setShowAssignModal(false)
             setChecked([])
           }}

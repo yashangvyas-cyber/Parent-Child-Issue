@@ -11,14 +11,67 @@ const ALL_ISSUES = [
   { key: 'COLLAB-2010', title: 'Infrastructure modernization initiative', type: 'epic' },
 ]
 
-export default function AssignParentModal({ selectedCount, onClose, onAssign }) {
+export default function AssignParentModal({ selectedIssues, onClose, onAssign }) {
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(null)
+  const [showWarning, setShowWarning] = useState(false)
+
+  const selectedCount = selectedIssues.length
+  const hasParentCount = selectedIssues.filter(i => i.parent).length
+  const isMixed = hasParentCount > 0 && hasParentCount < selectedCount
 
   const filtered = ALL_ISSUES.filter(i =>
     i.key.toLowerCase().includes(search.toLowerCase()) ||
     i.title.toLowerCase().includes(search.toLowerCase())
   )
+
+  const handleInitialAssign = () => {
+    if (hasParentCount > 0) {
+      setShowWarning(true)
+    } else {
+      onAssign(selected, 'assign')
+    }
+  }
+
+  if (showWarning) {
+    return (
+      <div className="fixed inset-0 z-[1001] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300">
+        <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-300 p-10 flex flex-col items-center text-center">
+          <div className="w-20 h-20 rounded-full bg-amber-50 border-4 border-amber-100 flex items-center justify-center text-3xl mb-6 animate-bounce">⚠️</div>
+          <h3 className="text-xl font-black text-slate-900 mb-2">Confirm Parent Re-assignment</h3>
+          <p className="text-sm text-slate-500 font-medium mb-8 leading-relaxed">
+            {isMixed 
+              ? `You've selected ${selectedCount} issues, but ${hasParentCount} already have parents assigned.`
+              : `All ${selectedCount} selected issues already have parents assigned.`}
+            <br/><span className="text-indigo-600 font-bold">Assigning to {selected?.key} will change the current mapping.</span>
+          </p>
+
+          <div className="flex flex-col w-full gap-3">
+            <button 
+              onClick={() => onAssign(selected, 'overwrite')}
+              className="w-full py-4 bg-indigo-600 text-white rounded-2xl text-[13px] font-black uppercase tracking-wider shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all"
+            >
+              Overwrite All
+            </button>
+            {isMixed && (
+              <button 
+                onClick={() => onAssign(selected, 'skip')}
+                className="w-full py-4 bg-white border-2 border-slate-100 text-slate-700 rounded-2xl text-[13px] font-black uppercase tracking-wider hover:bg-slate-50 active:scale-95 transition-all"
+              >
+                Skip issues with parents
+              </button>
+            )}
+            <button 
+              onClick={() => setShowWarning(false)}
+              className="w-full py-3 text-slate-400 text-xs font-bold uppercase tracking-widest hover:text-slate-600 mt-2"
+            >
+              Back to selection
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose}>
@@ -109,7 +162,7 @@ export default function AssignParentModal({ selectedCount, onClose, onAssign }) 
           </button>
           <button
             className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-lg active:scale-95 ${selected ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-600/20' : 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'}`}
-            onClick={() => selected && onAssign(selected)}
+            onClick={handleInitialAssign}
             disabled={!selected}
           >
             Assign Parent
