@@ -1,8 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { IssueTypeIcon } from './Icons'
+import AssignParentModal from './AssignParentModal'
 
 /* ─── Mock Data ─────────────────────────────────── */
-const EXISTING_ISSUES = [
+/* ─── Mock Data ─────────────────────────────────── */
+const ALL_SEARCHABLES = [
+  { key: 'COLLAB-1234', title: 'Mobile App Overhaul', type: 'epic' },
+  { key: 'COLLAB-1100', title: 'Platform Reliability Initiative Q1', type: 'epic' },
   { key: 'COLLAB-2050', title: 'Leave settings form UI optimization', type: 'task' },
   { key: 'COLLAB-2047', title: 'Attendance > Store the metrics in table', type: 'task' },
   { key: 'COLLAB-2046', title: 'Store name of client in client access table', type: 'task' },
@@ -10,6 +14,32 @@ const EXISTING_ISSUES = [
   { key: 'COLLAB-1589', title: 'Export timesheet report', type: 'story' },
 ]
 
+/* ─── Inline Search Dropdown ─────────────────────── */
+function InlineSearchDropdown({ search, onChoose }) {
+  const filtered = ALL_SEARCHABLES.filter(i =>
+    i.key.toLowerCase().includes(search.toLowerCase()) ||
+    i.title.toLowerCase().includes(search.toLowerCase())
+  )
+
+  return (
+    <div className="absolute top-full mt-1 inset-x-0 bg-white border border-slate-100 rounded-2xl shadow-premium z-[999] flex flex-col overflow-hidden max-h-[300px] overflow-y-auto">
+      {filtered.length === 0 ? (
+        <div className="p-4 text-center text-slate-400 text-xs font-bold italic">No work items found...</div>
+      ) : filtered.map(issue => (
+        <div
+          key={issue.key}
+          onMouseDown={(e) => { e.preventDefault(); onChoose(issue); }}
+          className="flex items-center gap-3 px-4 py-3 cursor-pointer text-[12px] hover:bg-slate-50 border-b border-slate-50 last:border-b-0 group"
+        >
+          <IssueTypeIcon type={issue.type} size="w-3.5 h-3.5" />
+          <span className="text-indigo-600 font-extrabold min-w-[85px] group-hover:scale-105 transition-transform">{issue.key}</span>
+          <span className="text-slate-700 font-bold flex-1 truncate">{issue.title}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+const EXISTING_ISSUES = []; // Keep for safety if referenced elsewhere, but using ALL_SEARCHABLES
 const PARENT_OPTIONS = [
   { key: 'COLLAB-1234', title: 'Mobile App Overhaul', type: 'epic' },
   { key: 'COLLAB-1100', title: 'Platform Reliability Initiative Q1', type: 'epic' },
@@ -22,51 +52,19 @@ const STATUSES = [
   { label: 'Closed', color: 'bg-emerald-600 text-white' },
 ]
 
-/* ─── Choose Existing Inline Dropdown ───────────── */
-function ChooseExistingDropdown({ search, onChoose, onClose }) {
-  const ref = useRef(null)
-  useEffect(() => {
-    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose() }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [onClose])
-
-  const filtered = EXISTING_ISSUES.filter(i =>
-    i.key.toLowerCase().includes(search.toLowerCase()) ||
-    i.title.toLowerCase().includes(search.toLowerCase())
-  )
-
-  return (
-    <div ref={ref} className="absolute top-full mt-1.5 inset-x-0 bg-white border-[1.5px] border-indigo-500 rounded-xl shadow-premium z-50 flex flex-col overflow-hidden">
-      <div className="overflow-y-auto max-h-[280px]">
-        {filtered.length === 0 ? (
-          <div className="p-4 text-center text-slate-400 text-xs">No issues found</div>
-        ) : filtered.map(issue => (
-          <div
-            key={issue.key}
-            onMouseDown={() => onChoose(issue)}
-            className="flex items-center gap-3 px-4 py-2.5 cursor-pointer text-xs hover:bg-slate-50 border-b border-slate-50 last:border-b-0"
-          >
-            <IssueTypeIcon type={issue.type} size="w-3.5 h-3.5" />
-            <span className="text-indigo-600 font-bold min-w-[90px]">{issue.key}</span>
-            <span className="text-slate-700 flex-1 truncate">{issue.title}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
 
 /* ─── Main Component ─────────────────────────────── */
 export default function IssueDetailView({ issue, onBack, project }) {
   const [parent, setParent] = useState({ key: 'COLLAB-1234', title: 'Mobile App Overhaul', type: 'epic' })
-  const [showParentDropdown, setShowParentDropdown] = useState(false)
-  const [parentSearch, setParentSearch] = useState('')
-  const parentRef = useRef(null)
-
+  
   const [title, setTitle] = useState(issue?.title || 'Issue parent child re-assignment in bulk')
   const [status, setStatus] = useState('In Progress')
   
+  // Parent Search
+  const [isSearchingParent, setIsSearchingParent] = useState(false)
+  const [parentInput, setParentInput] = useState('')
+  const parentRef = useRef(null)
+
   // Children
   const [children, setChildren] = useState([
     { key: 'COLLAB-2003', title: 'Fix issue key link in Safari', statusLabel: 'To Do', statusClass: 'bg-slate-100 text-slate-500' },
@@ -74,15 +72,40 @@ export default function IssueDetailView({ issue, onBack, project }) {
   ])
   const [showChildAddRow, setShowChildAddRow] = useState(false)
   const [childInput, setChildInput] = useState('')
-  const [isSearching, setIsSearching] = useState(false)
+  const [isSearchingChild, setIsSearchingChild] = useState(false)
+  const searchRowRef = useRef(null)
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (isSearchingChild && searchRowRef.current && !searchRowRef.current.contains(e.target)) {
+        setIsSearchingChild(false)
+      }
+      if (isSearchingParent && parentRef.current && !parentRef.current.contains(e.target)) {
+        setIsSearchingParent(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [isSearchingChild, isSearchingParent])
 
   // Tabs
   const [actTab, setActTab] = useState('Comments')
 
   const handleRemoveParent = () => {
     setParent(null)
-    // The requirement: "result should be page refreshes and then from the breadcrumb and now the only task will be shown."
-    // In our SPA context, we update the state which re-renders the hierarchy header.
+  }
+
+  const handleAssignParent = (selected) => {
+    setParent(selected)
+    setIsSearchingParent(false)
+    setParentInput('')
+  }
+
+  const handleAssignChild = (selected) => {
+    setChildren([...children, { ...selected, statusLabel: 'To Do', statusClass: 'bg-slate-100 text-slate-500' }])
+    setIsSearchingChild(false)
+    setShowChildAddRow(false)
+    setChildInput('')
   }
 
   return (
@@ -180,27 +203,69 @@ export default function IssueDetailView({ issue, onBack, project }) {
                 ))}
                 
                 {showChildAddRow && (
-                   <div className="bg-white rounded-2xl border-2 border-indigo-500 shadow-premium overflow-hidden animate-in zoom-in-95 duration-200">
-                      <div className="flex h-12">
-                        <div className="px-4 bg-slate-50 border-r border-slate-200 flex items-center gap-2">
-                           <span className="text-[11px] font-black text-slate-500 uppercase tracking-tight">Sub-Task</span>
-                           <svg className="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="6 9 12 15 18 9"/></svg>
+                   <div className="bg-white rounded-[20px] shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-slate-100 animate-in zoom-in-95 duration-200 relative mb-4 z-[50]">
+                      {!isSearchingChild ? (
+                        <>
+                           <div className="flex h-12">
+                             <div className="px-5 bg-slate-50/50 border-r border-slate-100 flex items-center gap-2.5">
+                               <span className="text-[11px] font-black text-slate-500 uppercase tracking-tight">Sub-Task</span>
+                               <svg className="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="6 9 12 15 18 9"/></svg>
+                            </div>
+                            <input
+                              autoFocus
+                              value={childInput}
+                              onChange={e => setChildInput(e.target.value)}
+                              placeholder="Write Here..."
+                              className="flex-1 px-4 text-[13px] font-bold outline-none"
+                            />
+                          </div>
+                          <div className="bg-slate-50 px-4 py-2 flex justify-between items-center border-t border-slate-200">
+                             <button 
+                               onClick={() => { setIsSearchingChild(true); setChildInput(''); }}
+                               className="text-indigo-600 text-[11px] font-black flex items-center gap-1 hover:underline decoration-2 underline-offset-4"
+                             >
+                               🔍 Choose Existing
+                             </button>
+                             <div className="flex gap-2">
+                               <button onClick={() => setShowChildAddRow(false)} className="px-4 py-1.5 bg-white border border-slate-200 rounded-lg text-[11px] font-black text-slate-600">Cancel</button>
+                               <button 
+                                 onClick={() => {
+                                   if (childInput.trim()) {
+                                     setChildren([...children, { key: `COLLAB-${Math.floor(Math.random()*1000)+3000}`, title: childInput, statusLabel: 'To Do', statusClass: 'bg-slate-100 text-slate-500' }]);
+                                     setShowChildAddRow(false);
+                                     setChildInput('');
+                                   }
+                                 }}
+                                 className="px-5 py-1.5 bg-indigo-600 rounded-lg text-[11px] font-black text-white shadow-lg shadow-indigo-200"
+                               >
+                                 Add
+                               </button>
+                             </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div ref={searchRowRef}>
+                          <div className="flex h-12 items-center px-4 gap-3 bg-white border-b border-slate-50">
+                             <button 
+                               onClick={() => setIsSearchingChild(false)}
+                               className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-50 text-slate-400 transition-colors"
+                             >
+                               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                             </button>
+                             <input
+                               autoFocus
+                               value={childInput}
+                               onChange={e => setChildInput(e.target.value)}
+                               placeholder="Search for a child item..."
+                               className="flex-1 text-[13px] font-bold outline-none bg-transparent h-full"
+                             />
+                          </div>
+                          <InlineSearchDropdown 
+                             search={childInput} 
+                             onChoose={handleAssignChild} 
+                          />
                         </div>
-                        <input
-                          autoFocus
-                          value={childInput}
-                          onChange={e => setChildInput(e.target.value)}
-                          placeholder="Write Here..."
-                          className="flex-1 px-4 text-[13px] font-bold outline-none"
-                        />
-                      </div>
-                      <div className="bg-slate-50 px-4 py-2 flex justify-between items-center border-t border-slate-200">
-                         <button className="text-indigo-600 text-[11px] font-black underline decoration-2 underline-offset-4 decoration-indigo-200">Choose Existing</button>
-                         <div className="flex gap-2">
-                           <button onClick={() => setShowChildAddRow(false)} className="px-4 py-1.5 bg-white border border-slate-200 rounded-lg text-[11px] font-black text-slate-600">Cancel</button>
-                           <button className="px-5 py-1.5 bg-indigo-600 rounded-lg text-[11px] font-black text-white shadow-lg shadow-indigo-200">Add</button>
-                         </div>
-                      </div>
+                      )}
                    </div>
                 )}
               </div>
@@ -301,23 +366,35 @@ export default function IssueDetailView({ issue, onBack, project }) {
 
           {/* Parent */}
           <SidebarField label="Parent">
-            <div ref={parentRef} className="relative">
-              {parent ? (
-                <div onClick={() => setShowParentDropdown(!showParentDropdown)} className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 border border-indigo-200 rounded-xl text-[11px] font-black text-indigo-700 cursor-pointer shadow-sm group">
-                  <IssueTypeIcon type={parent.type} size="w-3.5 h-3.5" />
-                  <span className="truncate flex-1">{parent.key} <span className="opacity-50 font-bold ml-1">{parent.title}</span></span>
-                  <button onClick={(e) => { e.stopPropagation(); handleRemoveParent(); }} className="hover:text-rose-500 transition-all">✕</button>
-                </div>
+            <div className="relative" ref={parentRef}>
+              {!isSearchingParent ? (
+                parent ? (
+                  <div onClick={() => { setIsSearchingParent(true); setParentInput(parent.key); }} className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 border border-indigo-200 rounded-xl text-[11px] font-black text-indigo-700 cursor-pointer shadow-sm group">
+                    <IssueTypeIcon type={parent.type} size="w-3.5 h-3.5" />
+                    <span className="truncate flex-1">{parent.key} <span className="opacity-50 font-bold ml-1">{parent.title}</span></span>
+                    <button onClick={(e) => { e.stopPropagation(); handleRemoveParent(); }} className="hover:text-rose-500 transition-all font-black">✕</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setIsSearchingParent(true)} className="w-full flex items-center justify-center h-9 bg-white border-2 border-dashed border-slate-200 rounded-xl text-[11px] font-black text-slate-400 hover:border-indigo-400 hover:text-indigo-600 transition-all">+ Set Parent</button>
+                )
               ) : (
-                <button onClick={() => setShowParentDropdown(!showParentDropdown)} className="w-full flex items-center justify-center h-9 bg-white border-2 border-dashed border-slate-200 rounded-xl text-[11px] font-black text-slate-400 hover:border-indigo-400 hover:text-indigo-600 transition-all">+ Set Parent</button>
-              )}
-              {showParentDropdown && (
-                <div className="absolute top-full mt-2 inset-x-0 z-[100]">
-                  <ChooseExistingDropdown 
-                    search={parentSearch} 
-                    onChoose={(p) => { setParent(p); setShowParentDropdown(false); }} 
-                    onClose={() => setShowParentDropdown(false)} 
-                  />
+                <div className="relative animate-in slide-in-from-top-1 duration-200">
+                   <div className="flex h-9 items-center px-3 gap-2 bg-white border border-slate-200 rounded-xl shadow-premium">
+                      <button onClick={() => setIsSearchingParent(false)} className="text-slate-400 hover:text-indigo-600">
+                         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                      </button>
+                      <input 
+                        autoFocus
+                        value={parentInput}
+                        onChange={e => setParentInput(e.target.value)}
+                        placeholder="Search..."
+                        className="flex-1 text-[11px] font-bold outline-none bg-transparent h-full"
+                      />
+                   </div>
+                   <InlineSearchDropdown 
+                      search={parentInput} 
+                      onChoose={handleAssignParent}
+                   />
                 </div>
               )}
             </div>
@@ -363,6 +440,8 @@ export default function IssueDetailView({ issue, onBack, project }) {
 
         </div>
       </div>
+
+      {/* Modals - None needed for inline search */}
     </div>
   )
 }
