@@ -31,6 +31,7 @@ const StatusBadge = ({ status }) => {
 export default function IssueListView({ project, activeTab, onTabChange, onIssueClick, activeBulkAction, onCancelBulkAction }) {
   const [checked, setChecked] = useState([])
   const [showAssignModal, setShowAssignModal] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const allChecked = checked.length === ISSUES.length && ISSUES.length > 0;
   const toggleAll = () => setChecked(allChecked ? [] : ISSUES.map(i => i.id))
@@ -41,10 +42,8 @@ export default function IssueListView({ project, activeTab, onTabChange, onIssue
   const handleBulkActionConfirm = () => {
     if (activeBulkAction === 'parent') {
       setShowAssignModal(true)
-    } else {
-      alert(`Action ${activeBulkAction} applied to ${checked.length} issues`)
-      onCancelBulkAction()
-      setChecked([])
+    } else if (activeBulkAction === 'delete') {
+      setShowDeleteConfirm(true)
     }
   }
 
@@ -55,52 +54,55 @@ export default function IssueListView({ project, activeTab, onTabChange, onIssue
 
   const actionLabels = {
     parent: 'Assign Parent',
-    assignee: 'Assignee',
-    label: 'Label',
     delete: 'Delete'
   }
 
   return (
-    <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-500">
+    <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-500 relative">
+      
+      {/* Bulk Action Top Bar */}
+      {isBulkMode && (
+        <div className="bg-white px-6 py-3 border-b border-slate-100/80 flex items-center justify-between shadow-sm z-10 sticky top-0">
+          <div className="flex items-center gap-3">
+            <input 
+              type="checkbox" 
+              checked={allChecked} 
+              onChange={toggleAll}
+              className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer"
+            />
+            <span className="text-[12px] font-black text-slate-700 tracking-tight">Select all {ISSUES.length} items</span>
+            {checked.length > 0 && (
+              <span className="ml-2 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest">{checked.length} Selected</span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={handleBulkActionConfirm}
+              disabled={checked.length === 0}
+              className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed ${activeBulkAction === 'delete' ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20 hover:bg-rose-600 active:scale-95' : 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700 active:scale-95'} `}
+            >
+              {actionLabels[activeBulkAction]}
+            </button>
+            <button 
+              onClick={handleCancelClick}
+              className="px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider text-slate-600 border border-slate-300 hover:border-slate-400 hover:bg-slate-50 transition-all bg-white active:scale-95"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Table Container */}
-      <div className="bg-white border border-slate-200/60 rounded-3xl shadow-xl shadow-slate-200/40 overflow-hidden relative group/list">
+      <div className="bg-white border border-slate-200/60 rounded-3xl shadow-xl shadow-slate-200/40 overflow-hidden relative group/list mx-6 mt-4 mb-6">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/50">
-                {isBulkMode && (
-                  <th className="px-6 py-3 min-w-[300px]">
-                    <div className="flex items-center gap-4">
-                      <input 
-                        type="checkbox" 
-                        checked={allChecked} 
-                        onChange={toggleAll}
-                        className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer"
-                      />
-                      <div className="flex items-center gap-2">
-                        <button 
-                          onClick={handleBulkActionConfirm}
-                          disabled={checked.length === 0}
-                          className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all disabled:opacity-50 ${activeBulkAction === 'delete' ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20 hover:bg-rose-600' : 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20 hover:bg-indigo-700'} `}
-                        >
-                          {actionLabels[activeBulkAction]}
-                        </button>
-                        <button 
-                          onClick={handleCancelClick}
-                          className="px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider text-slate-600 border border-slate-300 hover:border-slate-400 hover:bg-slate-50 transition-all bg-white"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  </th>
-                )}
-                {!isBulkMode && (
+                {isBulkMode ? (
+                   <th className="px-6 py-4 w-12 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">#</th>
+                ) : (
                   <th className="px-6 py-4 w-12 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">#</th>
-                )}
-                {isBulkMode && (
-                  <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">#</th>
                 )}
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Task</th>
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 text-center">Priority</th>
@@ -211,6 +213,40 @@ export default function IssueListView({ project, activeTab, onTabChange, onIssue
             onCancelBulkAction()
           }}
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[300] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl p-6 border border-slate-100 flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+             <div className="w-16 h-16 rounded-full bg-rose-50 flex items-center justify-center mb-4 shadow-inner border border-rose-100/50">
+               <svg className="w-8 h-8 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+             </div>
+             <h3 className="text-xl font-black text-slate-800 tracking-tight mb-2">Delete {checked.length} Issues?</h3>
+             <p className="text-sm font-medium text-slate-500 mb-8 max-w-[260px]">
+               Are you sure you want to permanently delete these issues? This action cannot be undone.
+             </p>
+             <div className="flex items-center gap-3 w-full">
+                <button 
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 px-4 py-3 rounded-2xl text-[13px] font-black uppercase tracking-wider text-slate-600 bg-slate-50 hover:bg-slate-100 transition-all border border-slate-200 active:scale-95"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    alert(`Deleted ${checked.length} issues`)
+                    setShowDeleteConfirm(false)
+                    setChecked([])
+                    onCancelBulkAction()
+                  }}
+                  className="flex-1 px-4 py-3 rounded-2xl text-[13px] font-black uppercase tracking-wider text-white bg-rose-500 hover:bg-rose-600 transition-all shadow-lg shadow-rose-500/20 active:scale-95"
+                >
+                  Delete
+                </button>
+             </div>
+          </div>
+        </div>
       )}
     </div>
   )
