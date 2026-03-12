@@ -3,14 +3,14 @@ import AssignParentModal from './AssignParentModal'
 import { IssueTypeIcon } from './Icons'
 
 const ISSUES = [
-  { id: 1, no: 1, type: 'story', key: 'COLLAB-2001', title: 'Implement parent-child issue mapping in task detail view', status: 'inprogress', priority: '🔴', assignees: [{ i: 'YV', c: '#667eea' }, { i: 'AM', c: '#f59e0b' }], estimate: '8h', due: 'Mar 18', parent: 'COLLAB-1990' },
-  { id: 2, no: 2, type: 'story', key: 'COLLAB-2002', title: 'Build bulk issue selection and parent assignment toolbar', status: 'inprogress', priority: '🔴', assignees: [{ i: 'RK', c: '#8b5cf6' }], estimate: '5h', due: 'Mar 19', parent: null },
-  { id: 3, no: 3, type: 'bug', key: 'COLLAB-2003', title: 'Fix issue key link not opening detail view in Safari', status: 'todo', priority: '🟠', assignees: [{ i: 'SR', c: '#10b981' }], estimate: '2h', due: 'Mar 20', parent: 'COLLAB-1990' },
-  { id: 4, no: 4, type: 'task', key: 'COLLAB-2004', title: 'Set up CI/CD pipeline for staging deployment', status: 'todo', priority: '🔴', assignees: [], estimate: '12h', due: 'Mar 22', parent: null },
-  { id: 5, no: 5, type: 'task', key: 'COLLAB-2005', title: 'Document API endpoints for third-party integration', status: 'todo', priority: '🟡', assignees: [{ i: 'PL', c: '#06b6d4' }], estimate: '4h', due: 'Mar 25', parent: null },
-  { id: 6, no: 6, type: 'story', key: 'COLLAB-2006', title: 'Sprint velocity tracker widget on dashboard', status: 'readyqa', priority: '🟡', assignees: [{ i: 'YV', c: '#667eea' }], estimate: '6h', due: 'Mar 17', parent: 'COLLAB-1991' },
-  { id: 7, no: 7, type: 'bug', key: 'COLLAB-2007', title: 'Tooltip overflow bug on compact mobile screens', status: 'readyqa', priority: '🟡', assignees: [{ i: 'AM', c: '#f59e0b' }], estimate: '1h', due: 'Mar 16', parent: null },
-  { id: 8, no: 8, type: 'story', key: 'COLLAB-2008', title: 'Onboarding flow design for new enterprise clients', status: 'todo', priority: '🟠', assignees: [{ i: 'SR', c: '#10b981' }, { i: 'RK', c: '#8b5cf6' }], estimate: '16h', due: 'Mar 28', parent: 'COLLAB-1991' },
+  { id: 1, no: 1, type: 'story', key: 'COLLAB-2001', title: 'Implement parent-child issue mapping in task detail view', status: 'inprogress', priority: '🔴', assignees: [{ i: 'YV', c: '#667eea' }, { i: 'AM', c: '#f59e0b' }], estimate: '8h', due: 'Mar 18', parent: 'COLLAB-1990', createdBy: 'JD' },
+  { id: 2, no: 2, type: 'story', key: 'COLLAB-2002', title: 'Build bulk issue selection and parent assignment toolbar', status: 'inprogress', priority: '🔴', assignees: [{ i: 'RK', c: '#8b5cf6' }], estimate: '5h', due: 'Mar 19', parent: null, createdBy: 'JD' },
+  { id: 3, no: 3, type: 'bug', key: 'COLLAB-2003', title: 'Fix issue key link not opening detail view in Safari', status: 'todo', priority: '🟠', assignees: [{ i: 'SR', c: '#10b981' }], estimate: '2h', due: 'Mar 20', parent: 'COLLAB-1990', createdBy: 'AS' },
+  { id: 4, no: 4, type: 'task', key: 'COLLAB-2004', title: 'Set up CI/CD pipeline for staging deployment', status: 'todo', priority: '🔴', assignees: [], estimate: '12h', due: 'Mar 22', parent: null, createdBy: 'PT' },
+  { id: 5, no: 5, type: 'task', key: 'COLLAB-2005', title: 'Document API endpoints for third-party integration', status: 'todo', priority: '🟡', assignees: [{ i: 'PL', c: '#06b6d4' }], estimate: '4h', due: 'Mar 25', parent: null, createdBy: 'JD' },
+  { id: 6, no: 6, type: 'story', key: 'COLLAB-2006', title: 'Sprint velocity tracker widget on dashboard', status: 'readyqa', priority: '🟡', assignees: [{ i: 'YV', c: '#667eea' }], estimate: '6h', due: 'Mar 17', parent: 'COLLAB-1991', createdBy: 'JD' },
+  { id: 7, no: 7, type: 'bug', key: 'COLLAB-2007', title: 'Tooltip overflow bug on compact mobile screens', status: 'readyqa', priority: '🟡', assignees: [{ i: 'AM', c: '#f59e0b' }], estimate: '1h', due: 'Mar 16', parent: null, createdBy: 'AS' },
+  { id: 8, no: 8, type: 'story', key: 'COLLAB-2008', title: 'Onboarding flow design for new enterprise clients', status: 'todo', priority: '🟠', assignees: [{ i: 'SR', c: '#10b981' }, { i: 'RK', c: '#8b5cf6' }], estimate: '16h', due: 'Mar 28', parent: 'COLLAB-1991', createdBy: 'PT' },
 ]
 
 const StatusBadge = ({ status }) => {
@@ -100,15 +100,19 @@ export default function IssueListView({ project, activeTab, onTabChange, onIssue
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/50">
                 {isBulkMode ? (
-                   <th className="px-6 py-4 w-12 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">#</th>
+                   <th className="px-6 py-4 w-12 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">No.</th>
                 ) : (
-                  <th className="px-6 py-4 w-12 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">#</th>
+                  <th className="px-6 py-4 w-12 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">No.</th>
                 )}
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Task</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 text-center">Priority</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 text-center">Type</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Key</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Title</th>
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Status</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 text-center">Priority</th>
                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Assignee</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Timeline</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Estimated Time</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Due Date</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 text-center">Created by</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -131,44 +135,45 @@ export default function IssueListView({ project, activeTab, onTabChange, onIssue
                   )}
                   {!isBulkMode && (
                     <td className="px-6 py-5">
-                      <span className="text-xs font-black text-slate-300 group-hover:text-slate-500 transition-colors uppercase">{issue.key.split('-')[1]}</span>
+                      <span className="text-xs font-black text-slate-300 group-hover:text-slate-500 transition-colors">{issue.no}</span>
                     </td>
                   )}
                   {isBulkMode && (
                     <td className="px-6 py-5">
-                      <span className="text-xs font-black text-slate-300 group-hover:text-slate-500 transition-colors uppercase">{issue.key.split('-')[1]}</span>
+                      <span className="text-xs font-black text-slate-300 group-hover:text-slate-500 transition-colors">{issue.no}</span>
                     </td>
                   )}
-                  <td className="px-6 py-5">
-                    <div className="flex flex-col gap-1 max-w-md">
-                      <div className="flex items-center gap-2">
-                        <IssueTypeIcon type={issue.type} />
-                        <span 
-                          className="text-[14px] font-black text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors truncate"
-                          onClick={(e) => { e.stopPropagation(); onIssueClick(issue); }}
-                        >
-                          {issue.title}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">{issue.key}</span>
-                         {issue.parent && (
-                            <>
-                              <span className="w-1 h-1 bg-slate-200 rounded-full" />
-                              <span className="flex items-center gap-1 text-[10px] font-black text-indigo-400 uppercase tracking-widest">
-                                <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="M12 19V5M12 5l-7 7m7-7l7 7"/></svg>
-                                {issue.parent}
-                              </span>
-                            </>
-                         )}
-                      </div>
+                  <td className="px-6 py-5 text-center">
+                    <div className="flex items-center justify-center">
+                      <IssueTypeIcon type={issue.type} />
                     </div>
                   </td>
-                  <td className="px-6 py-5 text-center">
-                    <span className="text-sm filter drop-shadow-sm grayscale group-hover:grayscale-0 transition-all opacity-60 group-hover:opacity-100">{issue.priority}</span>
+                  <td className="px-6 py-5">
+                    <span className="text-xs font-black text-slate-400 hover:text-indigo-600 transition-colors uppercase cursor-pointer" onClick={(e) => { e.stopPropagation(); onIssueClick(issue); }}>{issue.key}</span>
+                  </td>
+                  <td className="px-6 py-5">
+                    <div className="flex flex-col gap-1 max-w-md">
+                      <span 
+                        className="text-[14px] font-black text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors truncate"
+                        onClick={(e) => { e.stopPropagation(); onIssueClick(issue); }}
+                      >
+                        {issue.title}
+                      </span>
+                      {issue.parent && (
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="flex items-center gap-1 text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-50 px-1.5 py-0.5 rounded">
+                            <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="M12 19V5M12 5l-7 7m7-7l7 7"/></svg>
+                            {issue.parent}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-5">
                     <StatusBadge status={issue.status} />
+                  </td>
+                  <td className="px-6 py-5 text-center">
+                    <span className="text-sm filter drop-shadow-sm grayscale group-hover:grayscale-0 transition-all opacity-60 group-hover:opacity-100">{issue.priority}</span>
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex -space-x-1.5 transition-transform group-hover:-translate-x-1">
@@ -183,10 +188,13 @@ export default function IssueListView({ project, activeTab, onTabChange, onIssue
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    <div className="flex flex-col gap-1 text-right">
-                      <span className="text-[11px] font-black text-slate-700 tracking-tighter">{issue.due}</span>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{issue.estimate} Est.</span>
-                    </div>
+                    <span className="text-[12px] font-bold text-slate-500">{issue.estimate}</span>
+                  </td>
+                  <td className="px-6 py-5">
+                    <span className="text-[12px] font-bold text-slate-500">{issue.due}</span>
+                  </td>
+                  <td className="px-6 py-5 text-center">
+                    <div className="w-7 h-7 mx-auto rounded-full bg-slate-200 flex items-center justify-center text-[9px] font-black text-slate-600 shadow-sm">{issue.createdBy}</div>
                   </td>
                 </tr>
               ))}
