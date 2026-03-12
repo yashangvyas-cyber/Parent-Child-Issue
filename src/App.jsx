@@ -15,6 +15,7 @@ function App() {
   const [selectedProject, setSelectedProject] = useState(null)
   const [selectedIssue, setSelectedIssue] = useState(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [activeBulkAction, setActiveBulkAction] = useState(null)
 
   const projects = [
     { id: 1, name: 'Yopmail', type: 'Hire Base Project', role: 'Business Analyst (BA)', status: 'Active' },
@@ -56,7 +57,7 @@ function App() {
       // 3. Project Selected -> Show Board or List
       return activeTab === 'board'
         ? <BoardView project={selectedProject} onIssueClick={handleIssueSelect} />
-        : <IssueListView project={selectedProject} activeTab={activeTab} onTabChange={setActiveTab} onIssueClick={handleIssueSelect} />
+        : <IssueListView project={selectedProject} activeTab={activeTab} onTabChange={setActiveTab} onIssueClick={handleIssueSelect} activeBulkAction={activeBulkAction} onCancelBulkAction={() => setActiveBulkAction(null)} />
     }
 
     return (
@@ -94,7 +95,11 @@ function App() {
               
               {/* Only show FilterBar on Board/List views (NOT in Project List, NOT in Issue Detail) */}
               {selectedProject && !selectedIssue && (
-                <FilterBar onCreateIssue={() => setShowCreateModal(true)} />
+                <FilterBar 
+                  onCreateIssue={() => setShowCreateModal(true)} 
+                  onBulkActionSelect={setActiveBulkAction}
+                  activeBulkAction={activeBulkAction}
+                />
               )}
             </>
           )}
